@@ -1,0 +1,39 @@
+﻿@model IEnumerable<Library_Management_System.Models.Entities.Book>
+
+@{
+    ViewData["Title"] = "Get";
+}
+
+<h1>@ViewBag.Name Category's book</h1>
+<p>@ViewBag.Description</p>
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Author)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author)
+            </td>
+            <td>
+                    <a href="~/Book/Get?id=@item.Id" class="btn btn-secondary">Details</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

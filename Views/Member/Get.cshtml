@@ -1,0 +1,32 @@
+﻿@model IEnumerable<Library_Management_System.Models.ViewModel.Member_Borrows>
+
+@{
+    ViewData["Title"] = "Get";
+}
+
+@if (ViewData["member_name"] != null && ViewData["Phone"]!=null)
+{
+    <h1>@ViewData["member_name"]</h1>
+    <p>@ViewData["Phone"]</p>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Borrow Date</th>
+            <th>Due Date</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+                <td>@(item.Author ?? "N/a")</td>
+                <td>@(item.Title ?? "N/a")</td>
+                <td>@(item.Borrow_Date.ToString() ?? "N/a")</td>
+                <td>@(item.Due_Date.ToString() ?? "N/a")</td>
+        </tr>
+}
+    </tbody>
+</table>

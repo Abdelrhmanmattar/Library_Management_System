@@ -1,0 +1,53 @@
+﻿@model IEnumerable<Library_Management_System.Models.Entities.Member>
+
+@{
+    ViewData["Title"] = "Members";
+}
+
+<h1>Members</h1>
+
+<p>
+    <a asp-action="NEW">Create New</a>
+</p>
+
+@if (ViewData["edited"] != null)
+{
+    <p class="text-success">@ViewData["edited"]</p>
+}
+@if (ViewData["deleted"] != null)
+{
+    <p class="text-success">@ViewData["deleted"]</p>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Edit</th>
+            <th>Details</th>
+            <th>Delete</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+                <td>@(item.FName ?? "N/a")</td>
+                <td>@(item.LName ?? "N/a")</td>
+                <td>@(item.Email ?? "N/a")</td>
+                <td>@(item.Phone ?? "N/a")</td>
+                <td>
+                    <a href="~/Member/Edit?id=@item.Id" class="btn btn-success">Update</a>
+                </td>
+                <td>
+                    <a href="~/Member/Get?id=@item.Id" class="btn btn-secondary">Details</a>
+                </td>
+                <td>
+                    <a href="~/Member/Delete?id=@item.Id" class="btn btn-danger">Delete</a>
+                </td>
+        </tr>
+}
+    </tbody>
+</table>

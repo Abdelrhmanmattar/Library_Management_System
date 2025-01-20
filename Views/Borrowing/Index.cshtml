@@ -1,0 +1,242 @@
+﻿@using Library_Management_System.Models.Entities
+@using Library_Management_System.Models.ViewModel
+@*
+
+*@
+@{
+    ViewData["Title"] = "Borrowing System";
+    IEnumerable<Member> members = (IEnumerable<Member>)ViewData["members"];
+    //available books for borrow
+    IEnumerable<Book> books = (IEnumerable<Book>)ViewData["books"];
+    //books are borrowed
+    IEnumerable<Books_borrow_VM> Borrowed_Books = (IEnumerable<Books_borrow_VM>)ViewData["Borrowed_Books"];
+}
+<div class="container my-5">
+
+    <h1 class="text-center mb-4">Library Borrowing System</h1>
+
+
+    <!-- Borrow Book Section -->
+    <div class="card mb-4">
+        <div class="card-header">Borrow a Book</div>
+        <div class="card-body">
+            <form method="post" action="~/Borrowing/Borrow">
+                <div class="form-group">
+                    <label for="memberSelect">Select Member</label>
+                    <input type="text" id="searchMember" class="form-control me-2" placeholder="Name/Phone...">
+                    <input type="hidden" id="searchMemberId" name="MemberId">
+
+                </div>
+                <div class="form-group">
+                    <label for="bookSelect">Select Book</label>
+                    <input type="text" id="searchBook" class="form-control me-2" placeholder="book name / ISBN...">
+                    <input type="hidden" id="selectedBookId" name="bookId">
+                </div>
+                <button type="submit" class="btn btn-primary">Borrow</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">Return a Book</div>
+@*             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">
+                Show List
+            </button> *@
+
+
+        
+        <div class="card-body">
+            <form method="post" asp-action="Return">
+                <div class="form-group">
+                    <label for="returnBookSelect">Select Book to Return</label>
+                    <input type="text" id="returnBookSelect" class="form-control me-2" placeholder="book name / ISBN...">
+                    <input type="hidden" id="returId" name="returId">
+                </div>
+                <button type="submit" class="btn btn-success">Return</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Borrowing History -->
+    <div class="card">
+        <div class="card-header">Borrowing History</div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Mem_Name</th>
+                        <th>Book_title</th>
+                        <th>Book_isbn</th>
+                        <th>Borrow_Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Borrowed_Books != null && Borrowed_Books.Count() > 0)
+                    {
+                        @foreach (var item in Borrowed_Books)
+                        {
+                            <tr>
+                                <td>@item.Id.ToString()</td>
+                                <td>@item.Mem_Name</td>
+                                <td>@item.Book_title</td>
+                                <td>@item.Book_isbn</td>
+                                <td>@item.Borrow_Date.ToString("d")</td>
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    
+@*     <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="Borrowed_Books" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="Borrowed_Books">Borrowed_Books</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group">
+                        @foreach (var item in Borrowed_Books)
+						{
+							<li class="list-group-item">@item.Book_title (@item.Mem_Name)</li>
+                        }
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div> *@
+
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        console.log("start borrow");
+        const members = @Html.Raw(Json.Serialize(members));
+        const books = @Html.Raw(Json.Serialize(books));
+        const Borrowed_Books = @Html.Raw(Json.Serialize(Borrowed_Books));
+        console.log(members);
+        console.log(books);
+
+        // Search Member
+        $('#searchMember').autocomplete(
+            {
+                source: function (request, response)
+                {
+                    const mem_data = request.term.toLowerCase();
+                    const limit_member = [];
+                    let mem_count = 0;
+
+                    for (let i = 0; i < members.length;i++)
+                    {
+                        const fullName = (members[i].fName + ' ' + members[i].lName).toLowerCase(); // Combine fname and lname
+
+                        if (fullName.includes(mem_data) || members[i].phone.toLowerCase().includes(mem_data)) 
+                        {
+							limit_member.push({
+                                    label:`${members[i].fName} ${members[i].lName}(${members[i].phone}`,
+                                    value:`${members[i].fName} ${members[i].lName}`,
+                                    id:members[i].id
+                                });
+							mem_count++;
+						}
+                        if (mem_count >= 5) { break; }
+                    }
+                    console.log("Limit member:", limit_member);
+                    response(limit_member);
+                },
+
+                minLength: 2,
+                select: function (event, ui) 
+                {
+                    console.log("Selected member:", ui.item);
+					$('#searchMemberId').val(ui.item.id);
+                }
+            }
+        );
+
+        // Search Book
+        $('#searchBook').autocomplete(
+            {
+                source: function (request, response) 
+                {
+                    const book_data = request.term.toLowerCase();
+                    const book_limit = [];
+                    let book_count = 0;
+
+                    for (let i = 0; i < books.length; i++) 
+                    {
+                        if (books[i].title.toLowerCase().includes(book_data) ||
+                            books[i].isbn.toLowerCase().includes(book_data) ||
+                            books[i].author.toLowerCase().includes(book_data)
+                        ) 
+                        {
+                            book_limit.push({
+                                label: `${books[i].title} ${books[i].author} (${books[i].isbn})`,
+                                value: `${books[i].title} (${books[i].isbn})`,
+                                id: books[i].id
+                            });
+                            book_count++;
+                        }
+                        if (book_count >= 5) {
+                            break;
+                        }
+                    }
+                    response(book_limit);
+                },
+                minLength:2,
+                select: function (event, ui) 
+				{
+					console.log("Selected book:", ui.item);
+					$('#selectedBookId').val(ui.item.id);
+				}
+            }
+        );
+
+        $('#returnBookSelect').autocomplete(
+            {
+                source: function (request, response) {
+                    const book_data = request.term.toLowerCase();
+                    const book_limit = [];
+                    let book_count = 0;
+
+                    for (let i = 0; i < Borrowed_Books.length; i++) {
+                        if (Borrowed_Books[i].book_title.toLowerCase().includes(book_data) ||
+                            Borrowed_Books[i].book_isbn.toLowerCase().includes(book_data) ||
+                            Borrowed_Books[i].mem_Name.toLowerCase().includes(book_data)
+                        ) {
+                            book_limit.push({
+                                label: `${Borrowed_Books[i].book_title} (${Borrowed_Books[i].mem_Name})--->${Borrowed_Books[i].fine_Amout}`,
+                                value: `${Borrowed_Books[i].book_title} (${Borrowed_Books[i].mem_Name})--->${Borrowed_Books[i].fine_Amout}`,
+                                id: Borrowed_Books[i].id
+                            });
+                            book_count++;
+                        }
+                        if (book_count >= 5) {
+                            break;
+                        }
+                    }
+                    response(book_limit);
+                },
+                minLength: 2,
+                select: function (event, ui) {
+                    console.log("Selected book:", ui.item);
+                    $('#returId').val(ui.item.id);
+                }
+            }
+        );
+
+    }
+    );
+
+
+</script>

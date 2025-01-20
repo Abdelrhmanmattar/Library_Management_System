@@ -1,0 +1,180 @@
+﻿@model IEnumerable<Library_Management_System.Models.Entities.Book>
+
+@{
+    ViewData["Title"] = "Get_All";
+}
+
+<!-- Row for Create New Button and Search Book Input -->
+<div class="row align-items-center mb-3">
+    <!-- Left-aligned Create New Button -->
+    <div class="col-auto">
+        <a href="~/Book/NEW" class="btn btn-primary">Create New</a>
+    </div>
+
+    <!-- Right-aligned Search Book Input -->
+    <div class="col">
+        <div class="text-end">
+            <div class="form-group mb-0 d-inline-flex">
+                <input type="text" id="searchBook" class="form-control me-2" placeholder="book name / ISBN...">
+                <button type="button" id="clearSearch" class="btn btn-info rounded-circle btn-sm">&nbsp;X&nbsp;</button>
+                <input type="hidden" id="selectedBookId" name="bookId">
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (ViewData["edited"] != null)
+{
+    <p class="text-success">@ViewData["edited"]</p>
+}
+@if (ViewData["deleted"]!=null)
+{
+    <p class="text-success">@ViewData["deleted"]</p>
+}
+@if (ViewData["error"] != null)
+{
+    <p class="text-danger">@ViewData["error"]</p>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Author)
+            </th>
+            <th>Edit</th>
+            <th>Details</th>
+            <th>Delete</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="bookTableBody">
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author)
+            </td>
+            <td>
+                    <a href="~/Book/Edit?id=@item.Id" class="btn btn-success">Update</a>
+            </td>
+            <td>
+                    <a href="~/Book/Get?id=@item.Id" class="btn btn-secondary">Details</a>
+            </td>
+            <td>
+                    <a href="~/Book/Delete?id=@item.Id" class="btn btn-danger">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        // Pass the books from the model to JavaScript
+        console.log("start");
+        const books = @Html.Raw(Json.Serialize(Model));
+        const originalRows = $('#bookTableBody').html(); // Save original rows of the table
+
+        //clear function
+        function clearSearch() {
+            $('#searchBook').val(''); // Clear the search input
+            $('#bookTableBody').html(originalRows); // Restore the full table
+        }
+
+        function filterBooks()
+        {
+            const searchTerm = $('#searchBook').val().toLowerCase();
+            const filteredBooks = books.filter(book =>
+                book.title.toLowerCase().includes(searchTerm) ||
+                book.isbn.toLowerCase().includes(searchTerm)
+            );
+
+            // Clear the table and display filtered results
+            let newRows = '';
+            filteredBooks.forEach(book => {
+                newRows += `<tr class="book-row">
+                            <td>${book.title}</td>
+                            <td>${book.author}</td>
+                            <td><a href="~/Book/Edit?id=${book.id}" class="btn btn-success">Update</a></td>
+                            <td><a href="~/Book/Get?id=${book.id}" class="btn btn-secondary">Details</a></td>
+                            <td><a href="~/Book/Delete?id=${book.id}" class="btn btn-danger">Delete</a></td>
+                        </tr>`;
+            });
+
+            $('#bookTableBody').html(newRows); // Update the table with filtered data
+        }
+        $('#searchBook').on('keypress', function (e) {
+            if (e.which === 13) { // Enter key
+                filterBooks();
+            }
+        });
+        // Autocomplete functionality
+        $('#searchBook').autocomplete({
+            /*source: titles , // Comma added here
+            open: function () {
+                // Print to the console when autocomplete starts
+                console.log('Autocomplete has started!');
+            }*/
+            source: function (request, response) { 
+                const data = request.term.toLowerCase();
+                const limit_result = [];
+                let count = 0;
+
+                for (let i = 0; i < books.length; i++) 
+                {
+                    if(books[i].title.toLowerCase().includes(data) ||
+                    books[i].isbn.toLowerCase().includes(data)  ||
+                    books[i].author.toLowerCase().includes(data)
+                    
+                    ) 
+					{
+                        limit_result.push({
+                            label: `${books[i].title} ${books[i].author} (${books[i].isbn})`,
+                            value: `${books[i].title} (${books[i].isbn})`,
+                            id: books[i].id,
+                        });
+						count++;
+					}
+					if (count >= 5) 
+					{
+						break;
+					}
+                }
+                response(limit_result);
+            },
+            minLength: 2,
+            select: function (event, ui) {
+                console.log("Selected book:", ui.item);
+
+				$('#selectedBookId').val(ui.item.id);
+                $.ajax(
+                    {
+                        url:'/Book/Get',
+                        method: 'GET',
+                        data: { id: ui.item.id },
+                        success: function (response) { 
+                            console.log("Response from server:", response);
+                            alert("Book selected: " + ui.item.label);
+                            window.location.href = '/Book/Get?id=' + ui.item.id;
+                        },
+                        error: function (error) { 
+							console.log("Error:", error);
+                            alert("Failed to process the selected book.");
+						}
+                    }
+                );
+			}
+        });
+
+        $('#clearSearch').click(function () {
+            clearSearch();
+		});
+    });
+</script>
+
+

@@ -1,0 +1,88 @@
+﻿@model Library_Management_System.Models.ViewModel.Counts_Data
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome  
+        @if(User.Identity.IsAuthenticated == true )
+        {
+            @User.Identity.Name
+            ;
+        }
+        else
+        {
+            @("Guest")
+        }
+
+    </h1>
+</div>
+
+<div class="bg-gradient-primary text-black text-center py-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Library Management System</h1>
+        <p class="lead">Effortlessly manage members, books, categories, and borrowings with a user-friendly interface.</p>
+        <p class="lead">@Model.Member_nums members,@Model.Category_nums Categories,@Model.Book_nums books(@Model.Borrow_nums B,@Model.Book_ava A)</p>
+    </div>
+</div>
+<!-- Main Content -->
+<div class="container my-5">
+    <div class="row g-4">
+        <!-- Member List Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-lg text-center">
+                <div class="card-body py-5">
+                    <div class="icon mb-4">
+                        <i class="bi bi-people-fill text-primary fs-1"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Member List</h5>
+                    <p class="card-text text-muted">Manage and view all library members.</p>
+                    <a asp-controller="Member" asp-action="Index" class="btn btn-outline-primary w-100 rounded-pill">Explore</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Book list car-->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-lg text-center">
+                <div class="card-body py-5">
+                    <div class="icon mb-4">
+                        <i class="bi bi-book-fill text-success fs-1"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Books</h5>
+                    <p class="card-text text-muted">View and manage available books.</p>
+                    <a asp-controller="Book" asp-action="Index" class="btn btn-outline-success w-100 rounded-pill">Explore</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-lg text-center">
+                <div class="card-body py-5">
+                    <div class="icon mb-4">
+                        <i class="bi bi-tags-fill text-warning fs-1"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Category</h5>
+                    <p class="card-text text-muted">Organize books into categories.</p>
+                    <a asp-controller="Category" asp-action="Index" class="btn btn-outline-warning w-100 rounded-pill">Explore</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Borrowings Card -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-lg text-center">
+                <div class="card-body py-5">
+                    <div class="icon mb-4">
+                        <i class="bi bi-journal-bookmark-fill text-danger fs-1"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Borrowings</h5>
+                    <p class="card-text text-muted">Manage borrowing records and returns.</p>
+                    <a asp-controller="Borrowing" asp-action="Index" class="btn btn-outline-danger w-100 rounded-pill">Explore</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

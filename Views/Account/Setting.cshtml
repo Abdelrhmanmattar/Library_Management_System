@@ -1,0 +1,74 @@
+﻿@model Library_Management_System.Models.ViewModel.Edit_User_View_Model
+
+@{
+    ViewData["Title"] = "Setting";
+    List<string> users = null;
+    if (ViewData["Users"] != null) users = (List<string>)ViewData["Users"];
+}
+
+<h1>Setting</h1>
+
+@if (ViewData["result"] != null)
+{
+    <p class="text-success">@ViewData["result"].ToString()</p>
+}
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="User_Setting"  method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="old_password" class="control-label"></label>
+                <input asp-for="old_password" class="form-control" />
+                <span asp-validation-for="old_password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="new_password" class="control-label"></label>
+                <input asp-for="new_password" class="form-control" />
+                <span asp-validation-for="new_password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<hr />
+<div>
+    @if(users!=null)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        User Name
+                    </th>
+                    <th>Delete</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach(var item in users)
+                {
+                    <tr>
+                        <th>@item.ToString()</th>
+                        <th>
+                            <a href="~/Account/Delete?name=@item.ToString()" class="btn btn-danger">Delete</a>
+                        </th>
+                    </tr>
+                }
+            </tbody>
+        
+        </table>
+    }
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
